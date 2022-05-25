@@ -1,52 +1,61 @@
+const Item = require('../itemClass');
 const express = require("express")
 const router = new express.Router()
 const ExpressError = require("../expressError")
-const items = require("../fakeDb")
 
 
+/** GET / => [item, ...] */
 
-
-
-router.get("/", function (req, res) {
-    console.log(res)
-    res.json({ items })
-  })
-  
-  router.post("/", function (req, res, next) {
+router.get('', (req, res, next) => {
     try {
-      if (!req.body.name) throw new ExpressError("Name is required", 400);
-      const newCat = { name: req.body.name }
-      cats.push(newCat)
-      return res.status(201).json({ cat: newCat })
-    } catch (e) {
-      return next(e)
+      return res.json({ items: Item.findAll() });
+    } catch(err){
+      return next(err)
     }
-  })
+  });
   
-  router.get("/:name", function (req, res) {
-    const foundCat = cats.find(cat => cat.name === req.params.name)
-    if (foundCat === undefined) {
-      throw new ExpressError("Cat not found", 404)
-    }
-    res.json({ cat: foundCat })
-  })
+  /** POST / {name, price} => new-item */
   
-  router.patch("/:name", function (req, res) {
-    const foundCat = cats.find(cat => cat.name === req.params.name)
-    if (foundCat === undefined) {
-      throw new ExpressError("Cat not found", 404)
+  router.post('', (req, res, next) => {
+    try {
+      let newItem = new Item(req.body.name, req.body.price);
+      return res.json({item: newItem});
+    } catch (err) {
+      return next(err)
     }
-    foundCat.name = req.body.name
-    res.json({ cat: foundCat })
-  })
+  });
   
-  router.delete("/:name", function (req, res) {
-    const foundCat = cats.findIndex(cat => cat.name === req.params.name)
-    if (foundCat === -1) {
-      throw new ExpressError("Cat not found", 404)
+  /** GET /[name] => item */
+  
+  router.get('/:name', (req, res, next) => {
+    try {
+      let foundItem = Item.find(req.params.name);
+      return res.json({item:foundItem});
+    } catch(err){
+      return next(err)
     }
-    cats.splice(foundCat, 1)
-    res.json({ message: "Deleted" })
-  })
+  });
+  
+  /** PATCH /[name] => item */
+  
+  router.patch('/:name', (req, res, next) => {
+    try {
+      let foundItem = Item.update(req.params.name, req.body);
+      return res.json({ item: foundItem });
+    } catch (err) {
+      return next(err)
+    }
+  });
+  
+  /** DELETE /[name] => "Removed" */
+  
+  router.delete('/:name', (req, res, next) => {
+    try {
+      Item.remove(req.params.name);
+      return res.json({message:'Deleted'});
+    } catch (err) {
+      return next(err)
+    }
+  });
 
 module.exports = router;
