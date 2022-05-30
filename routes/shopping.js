@@ -1,6 +1,6 @@
 const Item = require('../itemClass');
 const express = require("express")
-const router = new express.Router()
+const router = express.Router()
 const ExpressError = require("../expressError")
 
 
